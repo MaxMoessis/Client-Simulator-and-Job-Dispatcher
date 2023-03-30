@@ -1,5 +1,4 @@
 import java.io.*;
-import java.lang.annotation.Documented;
 import java.net.*; 
  
 public class LRR {  
@@ -11,64 +10,37 @@ public class LRR {
 			
 			String str; // String used to read the BufferedReader Stream.
 
-			// System.out.println("Client: HELO\n");
-			// dout.write(("HELO\n").getBytes());  
-			// dout.flush(); 
-			dout.sendMsg("HELO"); 
+			sendMsg("HELO", dout); 
 		
-			// str = (String)dis.readLine();
-			// System.out.println("Server: " + str);
-			str = dis.recMsg();
+			str = recMsg(dis);
 			
 			String username = System.getProperty("user.name"); 
+	
+			sendMsg("AUTH "+ username, dout);
+
+			str = recMsg(dis);
+
+			sendMsg("REDY", dout);
 			
-			// System.out.println("Client: AUTH pooch\n");
-			// dout.write(("AUTH "+ username +"\n").getBytes());
-			// dout.flush();
-			dout.sendMsg("AUTH "+ username);
+			str = recMsg(dis);
 			
-			// str = dis.readLine();
-			// System.out.println("Server: " + str);
-			str = dis.recMsg();
+			sendMsg("GETS All", dout);
 			
-			// System.out.println("Client: REDY\n");
-			// dout.write(("REDY\n").getBytes());
-			// dout.flush();
-			dout.sendMsg("REDY");
-			
-			// str = dis.readLine();
-			// System.out.println("Server: " + str);
-			str = dis.recMsg();
-			
-			// System.out.println("Client: GETS All\n");
-			// dout.write(("GETS All\n").getBytes());
-			// dout.flush();
-			dout.sendMsg("GETS All");
-			
-			// str = dis.readLine(); 
-			str = dis.recMsg();
+			str = recMsg(dis);
 
 			String[] strSplit = str.split(" ");
 			
 			int numOfServers = Integer.parseInt(strSplit[1]);
 			
-			// System.out.println("Client: OK\n");
-			// dout.write(("OK\n").getBytes());
-			// dout.flush();
-			dout.sendMsg("OK");
+			sendMsg("OK", dout);
 			
 			int LSCores = 0;
 			int LSid = 0;
 			
-			System.out.println("Server: \n");
+			System.out.println("Server:\n");
 			for (int i = 0; i < numOfServers; i++) {
-				// str = dis.readLine(); 
-				// System.out.println(str);
-				str = dis.recMsg();
-				
+				str = recMsg(dis);
 				strSplit = str.split(" ");
-				
-		// Loop that finds the largest server (amount of cores & its id)
 				
 				if (Integer.parseInt(strSplit[4]) > LSCores) {
 					LSCores = Integer.parseInt(strSplit[4]);
@@ -78,23 +50,13 @@ public class LRR {
 			
 			System.out.println("\n The Largest Server is "+LSid+"(id) with "+LSCores+" Cores.\n");
 			
-			// System.out.println("Client: OK\n");
-			// dout.write(("OK\n").getBytes());
-			// dout.flush();
-			dout.sendMsg("OK");
+			sendMsg("OK", dout);
 			
-			// str = dis.readLine();
-			// System.out.println("Server: " + str);
-			str = dis.recMsg();
+			str = recMsg(dis);
 			
-			// System.out.println("Client: QUIT\n");
-			// dout.write(("QUIT\n").getBytes());
-			// dout.flush();
-			dout.sendMsg("QUIT");
+			sendMsg("QUIT", dout);
 			
-			// str = dis.readLine();
-			// System.out.println("Server: " + str +"\n");
-			str = dis.recMsg();
+			str = recMsg(dis);
 			
 			dout.close();  
 			dis.close();
@@ -109,9 +71,10 @@ public class LRR {
 	 * 		Flushes()
 	 * 		Prints to console
 	 */
-	public void sendMsg(String msg) {
-		this.write((msg+"\n").getBytes());
-		this.flush();
+	static void sendMsg(String msg, DataOutputStream inDout) {
+
+		inDout.write((msg+"\n").getBytes());
+		inDout.flush();
 
 		System.out.println("Client says: "+msg);
 	}
@@ -119,11 +82,12 @@ public class LRR {
 	/*
 	 * Receives a message through the BufferedReader dis.
 	 * Automatically:
-	 * 		Puts end of line character \n
-	 * 		Prints to console
+	 * 		Reads the line and prints to console
+	 * 		Returns the line read in a string.
 	 */
-	public String recMsg() {
-		String inStr = (String)this.readLine();
+	static String recMsg(BufferedReader inDis) {
+
+		String inStr = (String)inDis.readLine();
 		System.out.println("Server says: "+inStr);
 
 		return inStr;
