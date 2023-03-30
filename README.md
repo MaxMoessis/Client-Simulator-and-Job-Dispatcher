@@ -8,5 +8,5 @@ It:
 3. Starts a loop that finds the first largest server and then displays it's ID and how many cores it has. 
 4. Disconnects with the server. 
 
-My plan at this first stage is to make some funcitons that simplify the message sending process so the code looks a lot neater. 
+My plan at this first stage is to make some functions that simplify the message sending process so the code looks a lot neater. 
 Then the next step will be starting the LaTeX report and figuring out how to properly schedule jobs by studying the user manual. 
