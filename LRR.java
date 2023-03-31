@@ -35,24 +35,41 @@ public class LRR {
 			sendMsg("OK", dout);
 			
 			int LSCores = 0;
-			int LSid = 0;
+			String serverName = "";
 			
-			System.out.println("Server:\n");
+			System.out.println("\n Server List: \n");
 			for (int i = 0; i < numOfServers; i++) {
 				str = recMsg(dis);
 				strSplit = str.split(" ");
 				
 				if (Integer.parseInt(strSplit[4]) > LSCores) {
 					LSCores = Integer.parseInt(strSplit[4]);
-					LSid = Integer.parseInt(strSplit[1]);
+					serverName = strSplit[0];
 				}
 			}
-			
-			System.out.println("\n The Largest Server is "+LSid+"(id) with "+LSCores+" Cores.\n");
-			
+
+			int numOfLargest = 0; // Now to find out how many of that server type are present.
+
 			sendMsg("OK", dout);
-			
 			str = recMsg(dis);
+			sendMsg("GETS All", dout);
+			str = recMsg(dis);
+			sendMsg("OK", dout);
+
+			for(int i = 0; i < numOfServers; i++) {
+				str = recMsg(dis);
+				strSplit = str.split(" ");
+
+				if (strSplit[0].equals(serverName)) numOfLargest++;
+			}
+
+			sendMsg("OK", dout); 
+			str = recMsg(dis);
+			
+			// This will return the amount of the largest server types. 
+
+			System.out.println("\n The Largest Server is "+serverName+" with "+LSCores+" Cores.\n");
+			System.out.println(" There are also "+numOfLargest+" of this type.\n");
 			
 			sendMsg("QUIT", dout);
 			
@@ -93,3 +110,4 @@ public class LRR {
 		return inStr;
 	}
 }  
+
