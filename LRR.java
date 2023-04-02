@@ -33,7 +33,7 @@ public class LRR {
 			
 			String[] serverNames = new String[numOfServers];
 
-			System.out.println("\n Server List: \n");
+		//	System.out.println("\n Server List: \n");
 			for (int i = 0; i < numOfServers; i++) {
 				str = recMsg(dis);
 				strSplit = str.split(" ");
@@ -48,12 +48,6 @@ public class LRR {
 
 			int numOfLargest = 0; // Find out how many of that server type are present.
 
-			// sendMsg("OK", dout);
-			// str = recMsg(dis);
-			// sendMsg("GETS All", dout);
-			// str = recMsg(dis);
-			// sendMsg("OK", dout);
-
 			for(int i = 0; i < numOfServers; i++) {
 				if (serverNames[i].equals(serverName)) numOfLargest++;
 			}
@@ -61,8 +55,8 @@ public class LRR {
 			sendMsg("OK", dout); 
 			// This will return the amount of the largest server types. 
 
-			System.out.println("\n The Largest Server is "+serverName+" with "+LSCores+" Cores.\n");
-			System.out.println(" There are also "+numOfLargest+" of this type.\n");
+		//	System.out.println("\n The Largest Server is "+serverName+" with "+LSCores+" Cores.\n");
+		//	System.out.println(" There are also "+numOfLargest+" of this type.\n");
 
 			/* SCHD - schedule a job 
 			 *	SYNOPSIS:
@@ -83,7 +77,7 @@ public class LRR {
 				strSplit = str.split(" ");
 
 				while (strSplit[0].equals("JCPL")) { // first check if it's JCPL
-					System.out.println("in loop");
+		//			System.out.println("in loop");
 					sendMsg("REDY", dout);
 					str = recMsg(dis);
 					strSplit = str.split(" ");
@@ -98,9 +92,9 @@ public class LRR {
 			// Then close the connection
 
 			if (closeCon(dis, dout, s)) {
-				System.out.println("Connection successfully closed");
+		//		System.out.println("Connection successfully closed");
 			} else {
-				System.out.println("Connection failed to close");
+		//		System.out.println("Connection failed to close");
 			}
 
 		} catch(Exception e) { System.out.println(e); }  
@@ -118,7 +112,7 @@ public class LRR {
 		inDout.write((msg+"\n").getBytes());
 		inDout.flush();
 
-		System.out.println("Client says: "+msg);
+	//	System.out.println("Client says: "+msg);
 	}
 
 	/*
@@ -130,7 +124,7 @@ public class LRR {
 	static String recMsg(BufferedReader inDis) throws IOException {
 
 		String inStr = (String)inDis.readLine();
-		System.out.println("Server says: "+inStr);
+	//	System.out.println("Server says: "+inStr);
 
 		return inStr;
 	}
