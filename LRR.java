@@ -11,21 +11,15 @@ public class LRR {
 			String str; // String used to read the BufferedReader Stream.
 
 			sendMsg("HELO", dout); 
-		
 			str = recMsg(dis);
 			
 			String username = System.getProperty("user.name"); 
-	
 			sendMsg("AUTH "+ username, dout);
-
 			str = recMsg(dis);
 
 			sendMsg("REDY", dout);
-			
 			str = recMsg(dis);
-			
 			sendMsg("GETS All", dout);
-			
 			str = recMsg(dis);
 
 			String[] strSplit = str.split(" ");
@@ -37,10 +31,14 @@ public class LRR {
 			int LSCores = 0;
 			String serverName = "";
 			
+			String[] serverNames = new String[numOfServers];
+
 			System.out.println("\n Server List: \n");
 			for (int i = 0; i < numOfServers; i++) {
 				str = recMsg(dis);
 				strSplit = str.split(" ");
+
+				serverNames[i] = strSplit[0]; // getting a list of the server names
 				
 				if (Integer.parseInt(strSplit[4]) > LSCores) {
 					LSCores = Integer.parseInt(strSplit[4]);
@@ -48,36 +46,63 @@ public class LRR {
 				}
 			}
 
-			int numOfLargest = 0; // Now to find out how many of that server type are present.
+			int numOfLargest = 0; // Find out how many of that server type are present.
 
-			sendMsg("OK", dout);
-			str = recMsg(dis);
-			sendMsg("GETS All", dout);
-			str = recMsg(dis);
-			sendMsg("OK", dout);
+			// sendMsg("OK", dout);
+			// str = recMsg(dis);
+			// sendMsg("GETS All", dout);
+			// str = recMsg(dis);
+			// sendMsg("OK", dout);
 
 			for(int i = 0; i < numOfServers; i++) {
-				str = recMsg(dis);
-				strSplit = str.split(" ");
-
-				if (strSplit[0].equals(serverName)) numOfLargest++;
+				if (serverNames[i].equals(serverName)) numOfLargest++;
 			}
 
 			sendMsg("OK", dout); 
-			str = recMsg(dis);
-			
 			// This will return the amount of the largest server types. 
 
 			System.out.println("\n The Largest Server is "+serverName+" with "+LSCores+" Cores.\n");
 			System.out.println(" There are also "+numOfLargest+" of this type.\n");
-			
-			sendMsg("QUIT", dout);
-			
-			str = recMsg(dis);
-			
-			dout.close();  
-			dis.close();
-			s.close();  
+
+			/* SCHD - schedule a job 
+			 *	SYNOPSIS:
+			 *		SCHD jobID serverType serverID		
+			 *
+			 * JOBN
+			 * 	SYNOPSIS:
+			 * 		JOBN submitTime jobID estRuntime core memory disk
+			 */
+
+			short rr = 0;
+			str = "";
+			while (!str.equals("NONE")) {  // Stop scheduling when there are no more jobs to schedule. 
+				str = recMsg(dis);
+				
+				sendMsg("REDY", dout);
+				str = recMsg(dis);
+				strSplit = str.split(" ");
+
+				while (strSplit[0].equals("JCPL")) { // first check if it's JCPL
+					System.out.println("in loop");
+					sendMsg("REDY", dout);
+					str = recMsg(dis);
+					strSplit = str.split(" ");
+				}
+				
+				if (strSplit[0].equals("JOBN")) { // if received JOBN then schedule the job. 
+					sendMsg("SCHD "+strSplit[2]+" "+serverName+" "+rr%numOfLargest, dout);
+					rr++;
+				}
+			}
+
+			// Then close the connection
+
+			if (closeCon(dis, dout, s)) {
+				System.out.println("Connection successfully closed");
+			} else {
+				System.out.println("Connection failed to close");
+			}
+
 		} catch(Exception e) { System.out.println(e); }  
 	}  
 
@@ -109,5 +134,23 @@ public class LRR {
 
 		return inStr;
 	}
-}  
 
+	/* 
+	 * Closes the connection to the socket as well as sending a message to quit.
+	 * Returns true if successfully closed. 
+	 */
+
+	static boolean closeCon(BufferedReader inDis, DataOutputStream inDout, Socket inS) throws IOException {
+		try {
+			sendMsg("QUIT", inDout);			
+			recMsg(inDis);
+			inDout.close();  
+			inDis.close();
+			inS.close(); 
+		} catch (Exception e) {
+			System.out.println(e);
+			return false;
+		}
+		return true;
+	}
+}
