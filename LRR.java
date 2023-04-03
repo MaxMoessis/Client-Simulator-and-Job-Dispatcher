@@ -21,7 +21,7 @@ public class LRR {
 			/* Temp string used to read the BufferedReader Stream.
 			 * Only used when a message actually needs to be accessed and
 			 * not just read, since assigning it to the received message
-			 * every time would be an unnecessary memory allocation.
+			 * every time would be an unnecessary memory allocation. 
 			 */
 			String str; 
 		
@@ -34,7 +34,8 @@ public class LRR {
 			sendMsg("AUTH "+ username, dout);
 			recMsg(dis);
 			sendMsg("REDY", dout);
-			/* To exactly mimick DS-client, the client must keep a record of the first job
+			/* 
+			 * To exactly mimick DS-client, the client must keep a record of the first job
 			 * so that it doesn't have to re-request it after the GETS information is retrieved. 
 			 */
 			String firstJob = recMsg(dis); 
@@ -51,12 +52,12 @@ public class LRR {
 			
 			sendMsg("OK", dout);
 			
-			int LSCores = 0;
-			String serverName = ""; // Name of the largest server
-			String[] serverNames = new String[numOfServers]; // Array containing all the server names.
-
 
 			/* Finding the largest server type and initialising array of server names */
+
+			int LSCores = 0; // Number of cores in the largest server type.
+			String largestServer = ""; // Name of the largest server type.
+			String[] serverNames = new String[numOfServers]; // Array containing all the server type names.
 
 	//		System.out.println("\n Server List: \n");
 			for (int i = 0; i < numOfServers; i++) {
@@ -67,7 +68,7 @@ public class LRR {
 				
 				if (Integer.parseInt(strSplit[4]) > LSCores) {
 					LSCores = Integer.parseInt(strSplit[4]);
-					serverName = strSplit[0];
+					largestServer = strSplit[0];  // the final allocated name to 'largestServer' will be the largest server.
 				}
 			}
 
@@ -77,12 +78,12 @@ public class LRR {
 
 			/* Every time the largest server name is found in the list of servers, increment the amount */
 			for(int i = 0; i < numOfServers; i++) {
-				if (serverNames[i].equals(serverName)) numOfLargest++;
+				if (serverNames[i].equals(largestServer)) numOfLargest++;
 			}
 
 			sendMsg("OK", dout); 
 
-	//		System.out.println("\n The Largest Server is "+serverName+" with "+LSCores+" Cores.\n");
+	//		System.out.println("\n The Largest Server is "+largestServer+" with "+LSCores+" Cores.\n");
 	//		System.out.println(" There are also "+numOfLargest+" of this type.\n");
 
 			/* The start of the Largest Round Robin algorithm */
@@ -90,12 +91,12 @@ public class LRR {
 			int rr = 0; // Used to create round robin fashion (explained more inside loop).
 			str = "";
 
-			/* Scheduling the saved 'firstJob' */
+			/* Schedule the saved 'firstJob' */
 			if (recMsg(dis).equals(".")) { // receive the dot message after "OK" from the server listing.
-				sendMsg("SCHD "+firstSplit[2]+" "+serverName+" "+rr%numOfLargest, dout);
+				sendMsg("SCHD "+firstSplit[2]+" "+largestServer+" "+rr%numOfLargest, dout);
 				rr++;
 			}
-
+			/* Schedule the rest of the jobs */
 			while (!str.equals("NONE")) {  // Stop scheduling when there are no more jobs to schedule. 
 				recMsg(dis);
 				
@@ -114,7 +115,7 @@ public class LRR {
 				 * Once the loop is completed, this 'rr' variable also contains the total amount of jobs scheduled.
 				 */
 				if (strSplit[0].equals("JOBN")) { // if received JOBN then schedule the job. 
-					sendMsg("SCHD "+strSplit[2]+" "+serverName+" "+rr%numOfLargest, dout);
+					sendMsg("SCHD "+strSplit[2]+" "+largestServer+" "+rr%numOfLargest, dout);
 					rr++;
 				}
 
@@ -165,7 +166,6 @@ public class LRR {
 	 * Closes the connection to the socket as well as sending a message to quit.
 	 * Returns true if successfully closed. 
 	 */
-
 	static void closeCon(BufferedReader inDis, DataOutputStream inDout, Socket inS) throws IOException {
 		try {
 			sendMsg("QUIT", inDout);			
@@ -174,7 +174,7 @@ public class LRR {
 			inDis.close();
 			inS.close(); 
 
-//			System.out.println("Connection Closed!");
+//			System.out.println("Connection Closed");
 		} catch (Exception e) {
 			System.out.println(e);
 
