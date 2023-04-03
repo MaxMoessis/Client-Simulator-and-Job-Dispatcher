@@ -1,12 +1,17 @@
-# Project: Stage 1
-Currently, all that is in this repository is the client that I created in the week5 workshop. 
-This client successfully does some part of the job already.
-It: 
+# Stage 1 - COMP3100 Project
+## How to use this client (LRR.java)
+**There is a class file included, however I recommend compiling LRR.java yourself.**
 
-1. Says HELO to the DS-server and processes authentication 
-2. Runs a 'GETS All' and collects the number of servers that is returned
-3. Starts a loop that finds the first largest server and then displays it's ID and how many cores it has. 
-4. Disconnects with the server. 
+1. Make sure you have 2 terminals open, one containing the ds-server and the other containing this client (LRR).
+2. Start the server using any config files you desire 
+Example:
+    ./ds-server -c ds-sample-config01.xml -n -v brief 
 
-My plan at this first stage is to make some functions that simplify the message sending process so the code looks a lot neater. 
-Then the next step will be starting the LaTeX report and figuring out how to properly schedule jobs by studying the user manual. 
+3. Then compile and run LRR.java 
+
+$   javac LRR.java
+
+$   java LRR
+
+4. The client will schedule and complete all the jobs desired in the chosen config file.
+
