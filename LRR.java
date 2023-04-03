@@ -41,6 +41,17 @@ public class LRR {
 			String firstJob = recMsg(dis); 
 			String[] firstSplit = firstJob.split(" ");
 
+			/*
+			 * In order to have absolutely no magic numbers, I have delcared variables 
+			 * for the positions of specific information inside the split strings.
+			 */
+
+			 short NOS = 1;     // Number of servers displayed during GETS All
+			 short SN = 0;      // The server name
+			 short cores = 4;   // Amount of cores in the largest server.
+			 short comType = 0; // When checking for NONE, SCHD, JCPL, etc
+			 short jobID = 2;   // Which Job ID to schedule.
+
 
 			/* Obtaining the Number of Servers */
 
@@ -48,7 +59,7 @@ public class LRR {
 			str = recMsg(dis);
 			String[] strSplit = str.split(" ");
 			
-			int numOfServers = Integer.parseInt(strSplit[1]);
+			int numOfServers = Integer.parseInt(strSplit[NOS]);
 			
 			sendMsg("OK", dout);
 			
@@ -64,11 +75,11 @@ public class LRR {
 				str = recMsg(dis);
 				strSplit = str.split(" ");
 
-				serverNames[i] = strSplit[0]; // initialising an array of the server names
+				serverNames[i] = strSplit[SN]; // initialising an array of the server names
 				
 				if (Integer.parseInt(strSplit[4]) > LSCores) {
-					LSCores = Integer.parseInt(strSplit[4]);
-					largestServer = strSplit[0];  // the final allocated name to 'largestServer' will be the largest server.
+					LSCores = Integer.parseInt(strSplit[cores]);
+					largestServer = strSplit[SN];  // the final allocated name to 'largestServer' will be the largest server.
 				}
 			}
 
@@ -93,7 +104,7 @@ public class LRR {
 
 			/* Schedule the saved 'firstJob' */
 			if (recMsg(dis).equals(".")) { // receive the dot message after "OK" from the server listing.
-				sendMsg("SCHD "+firstSplit[2]+" "+largestServer+" "+rr%numOfLargest, dout);
+				sendMsg("SCHD "+firstSplit[jobID]+" "+largestServer+" "+rr%numOfLargest, dout);
 				rr++;
 			}
 			/* Schedule the rest of the jobs */
@@ -104,7 +115,7 @@ public class LRR {
 				str = recMsg(dis);
 				strSplit = str.split(" ");
 
-				while (strSplit[0].equals("JCPL")) { // check if it's JCPL
+				while (strSplit[comType].equals("JCPL")) { // check if it's JCPL
 					sendMsg("REDY", dout);
 					str = recMsg(dis);
 					strSplit = str.split(" ");
@@ -114,8 +125,8 @@ public class LRR {
 				 * rr is then incremented after every SCHD, creating this round robin fashion. 
 				 * Once the loop is completed, this 'rr' variable also contains the total amount of jobs scheduled.
 				 */
-				if (strSplit[0].equals("JOBN")) { // if received JOBN then schedule the job. 
-					sendMsg("SCHD "+strSplit[2]+" "+largestServer+" "+rr%numOfLargest, dout);
+				if (strSplit[comType].equals("JOBN")) { // if received JOBN then schedule the job. 
+					sendMsg("SCHD "+strSplit[jobID]+" "+largestServer+" "+rr%numOfLargest, dout);
 					rr++;
 				}
 
